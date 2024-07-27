@@ -7,10 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import roomescape.domain.Reservation;
 
 import java.util.concurrent.atomic.AtomicLong;
-
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Controller
 public class ReservationController {
@@ -24,6 +22,12 @@ public class ReservationController {
         return "reservation";
     }
 
+    // 예약 추가 페이지 응답
+    @GetMapping("/new-reservation")
+    public String newReservation() {
+        return "new-reservation";
+    }
+
     // 예약 목록 조회 API
     @GetMapping("/reservations")
     public ResponseEntity<List<Reservation>> reservations() {
@@ -35,7 +39,6 @@ public class ReservationController {
     public ResponseEntity<Reservation> addReservation(@RequestBody Reservation reservation) {
         reservation.setId(index.getAndIncrement()); // 예약에 ID를 부여합니다.
         reservations.add(reservation); // 예약을 목록에 추가합니다.
-        // 예약이 추가된 후, 201 Created 상태와 함께 예약 객체를 반환합니다.
         return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
     }
 

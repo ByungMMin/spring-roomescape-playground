@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,7 +10,6 @@
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="/css/reservation.css">
 </head>
-
 <body>
 
 <div class="container-fluid page">
@@ -41,7 +39,7 @@
     <div id="content-container" class="col-md-9 p-5">
       <h1>예약 관리</h1>
       <div class="table-header mb-3">
-        <button id="add-reservation" class="btn btn-primary">예약 추가</button>
+        <button id="add-row" class="btn btn-primary">예약 추가</button>
       </div>
       <div class="table-container">
         <table class="table table-bordered">
@@ -66,7 +64,7 @@
 <script>
   // 예약 목록을 가져와서 테이블에 추가하는 함수
   function loadReservations() {
-    fetch('/reservations/list')
+    fetch('/reservations') // 올바른 URL 사용
             .then(response => response.json())
             .then(data => {
               const tableBody = document.getElementById('reservation-table-body');
@@ -111,29 +109,56 @@
             .catch(error => console.error('Error:', error));
   }
 
-  document.getElementById('add-reservation').addEventListener('click', () => {
-    // 새로운 예약 데이터를 추가
-    const newReservation = {
-      name: '브라운',
-      date: '2023-01-04',
-      time: '13:00'
-    };
+  // 테이블에 새 행 추가 함수
+  document.getElementById('add-row').addEventListener('click', () => {
+    const tableBody = document.getElementById('reservation-table-body');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td></td>
+      <td><input type="text" class="form-control" id="new-name"></td>
+      <td><input type="date" class="form-control" id="new-date"></td>
+      <td><input type="time" class="form-control" id="new-time"></td>
+      <td>
+        <button class="btn btn-success btn-sm" id="save-new-reservation">확인</button>
+        <button class="btn btn-secondary btn-sm" id="cancel-new-reservation">취소</button>
+      </td>
+    `;
+    tableBody.appendChild(row);
 
-    fetch('/reservations/reservation', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(newReservation)
-    })
-            .then(response => response.json())
-            .then(data => {
-              console.log('Success:', data);
-              loadReservations(); // 목록 다시 로드
-            })
-            .catch((error) => {
-              console.error('Error:', error);
-            });
+    // 확인 버튼 클릭 이벤트 리스너 추가
+    document.getElementById('save-new-reservation').addEventListener('click', () => {
+      const name = document.getElementById('new-name').value;
+      const date = document.getElementById('new-date').value;
+      const time = document.getElementById('new-time').value;
+
+      const reservation = {
+        name: name,
+        date: date,
+        time: time
+      };
+
+      fetch('/reservations/reservation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(reservation)
+      })
+              .then(response => {
+                if (response.ok) {
+                  loadReservations(); // 새 예약이 추가되면 목록 다시 로드
+                } else {
+                  console.error('Failed to add reservation');
+                }
+              })
+              .catch(error => console.error('Error:', error));
+    });
+
+    // 취소 버튼 클릭 이벤트 리스너 추가
+    document.getElementById('cancel-new-reservation').addEventListener('click', () => {
+      // 새로 추가된 행 삭제
+      tableBody.removeChild(row);
+    });
   });
 
   // 페이지 로드 시 예약 목록을 불러옴
@@ -143,5 +168,4 @@
 <script src="/js/scripts.js"></script>
 <script src="/js/reservation.js"></script>
 </body>
-
 </html>
