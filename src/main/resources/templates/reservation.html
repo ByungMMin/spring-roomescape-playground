@@ -131,6 +131,12 @@
       const date = document.getElementById('new-date').value;
       const time = document.getElementById('new-time').value;
 
+      // 빈 필드 검증
+      if (!name || !date || !time) {
+        alert('모든 필드를 채워주세요.');
+        return;
+      }
+
       const reservation = {
         name: name,
         date: date,
@@ -145,7 +151,9 @@
         body: JSON.stringify(reservation)
       })
               .then(response => {
-                if (response.ok) {
+                if (response.status === 400) {
+                  response.text().then(message => alert('잘못된 입력입니다: ' + message));
+                } else if (response.ok) {
                   loadReservations(); // 새 예약이 추가되면 목록 다시 로드
                 } else {
                   console.error('Failed to add reservation');
